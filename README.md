@@ -30,19 +30,13 @@ bin/shorty --config /etc/shorty/shorty.conf
 ````
 POST /shorten (url=http://url_to_short.com/?lorem=ipsum)
 # => http://domain.com/:code
-````
 
-````
 GET /expand/:code
 # => http://url_to_short.com/?lorem=ipsum
-````
 
-````
 GET /:code
 # => Redirect to http://url_to_short.com/?lorem=ipsum
-````
 
-````
 GET /statistics/:code
 # => Count of redirects to http://url_to_short.com/?lorem=ipsum
 ````
