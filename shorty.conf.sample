@@ -9,7 +9,7 @@ port = 8080
 
 [database]
 host = localhost
-database = shorty_dev
+database = shorty
 user = user
 password = password
 
