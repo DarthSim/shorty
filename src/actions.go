@@ -55,7 +55,7 @@ func redirectHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	http.Redirect(rw, req, url, 302)
+	http.Redirect(rw, req, url, 301)
 }
 
 func expandHandler(rw http.ResponseWriter, req *http.Request) {
