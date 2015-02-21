@@ -21,8 +21,7 @@ func checkServerError(rw http.ResponseWriter, err error) bool {
 
 func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
 	err := req.ParseForm()
-	if err != nil {
-		serverError(rw, err, 500)
+	if checkServerError(rw, err) {
 		return
 	}
 
@@ -34,8 +33,7 @@ func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	code, err := createUrl(url)
-	if err != nil {
-		serverError(rw, err, 500)
+	if checkServerError(rw, err) {
 		return
 	}
 
@@ -48,10 +46,12 @@ func redirectHandler(rw http.ResponseWriter, req *http.Request) {
 	code := requestVars(req)["code"]
 
 	url, err := getUrl(code)
+	if checkServerError(rw, err) {
+		return
+	}
 
 	err = hitRedirect(code)
-	if err != nil {
-		serverError(rw, err, 500)
+	if checkServerError(rw, err) {
 		return
 	}
 
@@ -62,7 +62,6 @@ func expandHandler(rw http.ResponseWriter, req *http.Request) {
 	code := requestVars(req)["code"]
 
 	url, err := getUrl(code)
-
 	if checkServerError(rw, err) {
 		return
 	}
@@ -74,7 +73,6 @@ func statisticsHandler(rw http.ResponseWriter, req *http.Request) {
 	code := requestVars(req)["code"]
 
 	count, err := getOpenCount(code)
-
 	if checkServerError(rw, err) {
 		return
 	}
