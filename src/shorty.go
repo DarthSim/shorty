@@ -6,7 +6,7 @@ func main() {
 	initLogger()
 	defer closeLogger()
 
-	initDB()
+	initDB(true)
 	defer closeDB()
 
 	startServer()

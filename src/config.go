@@ -51,6 +51,6 @@ func prepareConfig() {
 	err := gcfg.ReadFileInto(&config, absPathToFile(*configfile))
 	if err != nil {
 		fmt.Printf("Error opening config file: %v", err)
-		os.Exit(1)
+		halt()
 	}
 }

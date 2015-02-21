@@ -12,8 +12,17 @@ import (
 
 var db *sql.DB
 
+func confirmDbReset() {
+	msg := fmt.Sprintf("Do you really want to reset DB '%s'?", config.Database.Database)
+	if !confirm(msg) {
+		halt()
+	}
+}
+
 func initDBSchema() {
 	schema := `
+		DROP TABLE IF EXISTS urls;
+
 		CREATE SEQUENCE urls_id_seq;
 		CREATE SEQUENCE urls_code_seq START 0 MINVALUE 0;
 
@@ -34,7 +43,7 @@ func initDBSchema() {
 	}
 }
 
-func initDB() {
+func initDB(resetConfirmation bool) {
 	var err error
 
 	connectionString := fmt.Sprintf(
@@ -52,6 +61,9 @@ func initDB() {
 	db.SetMaxIdleConns(config.Database.MaxIdleConnections)
 
 	if config.Database.InitSchema {
+		if resetConfirmation {
+			confirmDbReset()
+		}
 		initDBSchema()
 	}
 }

@@ -37,7 +37,7 @@ func (suite *ActionsTestSuite) SetupSuite() {
 
 	initLogger()
 
-	initDB()
+	initDB(false)
 
 	suite.Router = setupRouter()
 }
