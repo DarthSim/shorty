@@ -1,5 +1,5 @@
 # Shorty
-
+[![Build Status](https://travis-ci.org/DarthSim/shorty.svg)](https://travis-ci.org/DarthSim/shorty)
 Tiny url shortener
 
 ## Installation
