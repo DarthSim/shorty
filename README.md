@@ -4,7 +4,7 @@
 Tiny url shortener
 
 ## Installation
-You will need Go and [Gom](https://github.com/mattn/gom) to build the project.
+You will need Go and [Gom](https://github.com/mattn/gom) to build the project and PostgreSQL to make Shorty fly.
 
 ```bash
 make
@@ -40,3 +40,16 @@ GET /:code
 GET /statistics/:code
 # => Count of redirects to http://url_to_short.com/?lorem=ipsum
 ````
+
+## How to run tests
+1. First of all you need a PostgreSQL DB named `shorty_test`.
+
+2. Next install testing packages with
+```bash
+gom -test install
+```
+
+3. And finally run the following
+```bash
+DBUSER=your_db_user DBPASS=your_db_user_password gom test src/*
+```
