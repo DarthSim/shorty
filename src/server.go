@@ -13,8 +13,7 @@ func startServer() {
 
 	logger.Printf("Starting server on %s\n", bindAddress)
 
-	err := http.ListenAndServe(bindAddress, setupRouter())
-	if err != nil {
+	if err := http.ListenAndServe(bindAddress, setupRouter()); err != nil {
 		logger.Fatalf("Can't start server: %v", err)
 	}
 }
