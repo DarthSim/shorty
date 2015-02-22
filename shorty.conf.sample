@@ -18,3 +18,6 @@ maxOpenConnections = 10
 
 [log]
 path = ../log/shorty.log
+
+[perfomance]
+urlCacheSize = 1024

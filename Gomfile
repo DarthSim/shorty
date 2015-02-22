@@ -1,6 +1,7 @@
 gom 'github.com/gorilla/mux'
 gom 'code.google.com/p/gcfg'
 gom 'github.com/lib/pq'
+gom 'github.com/golang/groupcache'
 
 group :test do
   gom 'github.com/stretchr/testify'

@@ -27,6 +27,9 @@ type Config struct {
 	Log struct {
 		Path string
 	}
+	Perfomance struct {
+		UrlCacheSize int
+	}
 }
 
 var config Config

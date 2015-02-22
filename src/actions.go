@@ -4,7 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+
+	"github.com/golang/groupcache/lru"
 )
+
+var urlCache *lru.Cache
 
 func checkServerError(rw http.ResponseWriter, err error) bool {
 	switch {
@@ -17,6 +21,24 @@ func checkServerError(rw http.ResponseWriter, err error) bool {
 	}
 
 	return false
+}
+
+func getUrlCached(code string) (url string, err error) {
+	if urlCache == nil {
+		urlCache = lru.New(config.Perfomance.UrlCacheSize)
+	}
+
+	if urli, ok := urlCache.Get(code); ok {
+		return urli.(string), nil
+	}
+
+	if url, err = getUrl(code); err != nil {
+		return
+	}
+
+	urlCache.Add(code, url)
+
+	return
 }
 
 func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
@@ -45,7 +67,7 @@ func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
 func redirectHandler(rw http.ResponseWriter, req *http.Request) {
 	code := requestVars(req)["code"]
 
-	url, err := getUrl(code)
+	url, err := getUrlCached(code)
 	if checkServerError(rw, err) {
 		return
 	}
@@ -61,7 +83,7 @@ func redirectHandler(rw http.ResponseWriter, req *http.Request) {
 func expandHandler(rw http.ResponseWriter, req *http.Request) {
 	code := requestVars(req)["code"]
 
-	url, err := getUrl(code)
+	url, err := getUrlCached(code)
 	if checkServerError(rw, err) {
 		return
 	}
