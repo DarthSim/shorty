@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 )
 
-func appPath() string {
-	path, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	return path
+func appPath() (path string) {
+	path, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+	return
 }
 
 func absPathToFile(path string) string {

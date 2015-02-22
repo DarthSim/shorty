@@ -78,53 +78,49 @@ func closeDB() {
 
 const codeBase = 13330
 
-func createUrl(url string) (string, error) {
+func createUrl(url string) (code string, err error) {
 	var codeSeq int64
 
-	err := db.QueryRow("SELECT nextval('urls_code_seq')").Scan(&codeSeq)
+	err = db.QueryRow("SELECT nextval('urls_code_seq')").Scan(&codeSeq)
 	if err != nil {
-		return "", err
+		return
 	}
 
-	code := strconv.FormatInt(codeBase+codeSeq, 36)
+	code = strconv.FormatInt(codeBase+codeSeq, 36)
 
 	_, err = db.Exec("INSERT INTO urls (url, code) VALUES ($1, $2)", url, code)
 	if err != nil {
-		return "", err
+		return
 	}
 
-	return code, nil
+	return
 }
 
-func getUrl(code string) (string, error) {
-	var url string
-
-	err := db.QueryRow(
+func getUrl(code string) (url string, err error) {
+	err = db.QueryRow(
 		"SELECT url FROM urls WHERE code = $1 LIMIT 1",
 		code,
 	).Scan(&url)
 
-	return url, err
+	return
 }
 
-func hitRedirect(code string) error {
-	_, err := db.Exec(
+func hitRedirect(code string) (err error) {
+	_, err = db.Exec(
 		"UPDATE urls SET open_count = open_count + 1 WHERE code = $1",
 		code,
 	)
 
-	return err
+	return
 }
 
-func getOpenCount(code string) (int64, error) {
-	var count int64
-
-	err := db.QueryRow(
+func getOpenCount(code string) (count int64, err error) {
+	err = db.QueryRow(
 		"SELECT open_count FROM urls WHERE code = $1 LIMIT 1",
 		code,
 	).Scan(&count)
 
-	return count, err
+	return
 }
 
 // end of DB queries
