@@ -19,15 +19,15 @@ func startServer() {
 	}
 }
 
-func setupRouter() *mux.Router {
-	router := mux.NewRouter()
+func setupRouter() (router *mux.Router) {
+	router = mux.NewRouter()
 
 	router.HandleFunc("/shorten", createUrlHandler).Methods("POST")
 	router.HandleFunc("/{code}", redirectHandler).Methods("GET")
 	router.HandleFunc("/expand/{code}", expandHandler).Methods("GET")
 	router.HandleFunc("/statistics/{code}", statisticsHandler).Methods("GET")
 
-	return router
+	return
 }
 
 func requestVars(req *http.Request) map[string]string {

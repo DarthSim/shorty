@@ -57,13 +57,10 @@ func (suite *ActionsTestSuite) TearDownTest() {
 	db.Exec("DELETE FROM urls;")
 }
 
-func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) error {
+func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) (err error) {
 	suite.Response = httptest.NewRecorder()
 
-	var (
-		req *http.Request
-		err error
-	)
+	var req *http.Request
 
 	if method == "POST" {
 		reqBody := strings.NewReader(body[0])
@@ -73,7 +70,7 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 	}
 
 	if err != nil {
-		return err
+		return
 	}
 
 	if method == "POST" {
@@ -81,7 +78,8 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 	}
 
 	suite.Router.ServeHTTP(suite.Response, req)
-	return nil
+
+	return
 }
 
 func (suite *ActionsTestSuite) TestCreateUrl() {
