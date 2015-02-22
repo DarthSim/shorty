@@ -66,6 +66,8 @@ func initDB(resetConfirmation bool) {
 		}
 		initDBSchema()
 	}
+
+	prepareDbQueries()
 }
 
 func closeDB() {
@@ -78,18 +80,43 @@ func closeDB() {
 
 const codeBase = 13330
 
+var (
+	dbqCodeSeq      *sql.Stmt
+	dbqCreateUrl    *sql.Stmt
+	dbqGetUrl       *sql.Stmt
+	dbqHitRedirect  *sql.Stmt
+	dbqGetOpenCount *sql.Stmt
+)
+
+func prepareDbQueries() (err error) {
+	dbqCodeSeq, err = db.Prepare("SELECT nextval('urls_code_seq')")
+	checkErr(err, "Can't prepare DB")
+
+	dbqCreateUrl, err = db.Prepare("INSERT INTO urls (url, code) VALUES ($1, $2)")
+	checkErr(err, "Can't prepare DB")
+
+	dbqGetUrl, err = db.Prepare("SELECT url FROM urls WHERE code = $1 LIMIT 1")
+	checkErr(err, "Can't prepare DB")
+
+	dbqHitRedirect, err = db.Prepare("UPDATE urls SET open_count = open_count + 1 WHERE code = $1")
+	checkErr(err, "Can't prepare DB")
+
+	dbqGetOpenCount, err = db.Prepare("SELECT open_count FROM urls WHERE code = $1 LIMIT 1")
+	checkErr(err, "Can't prepare DB")
+
+	return
+}
+
 func createUrl(url string) (code string, err error) {
 	var codeSeq int64
 
-	err = db.QueryRow("SELECT nextval('urls_code_seq')").Scan(&codeSeq)
-	if err != nil {
+	if err = dbqCodeSeq.QueryRow().Scan(&codeSeq); err != nil {
 		return
 	}
 
 	code = strconv.FormatInt(codeBase+codeSeq, 36)
 
-	_, err = db.Exec("INSERT INTO urls (url, code) VALUES ($1, $2)", url, code)
-	if err != nil {
+	if _, err = dbqCreateUrl.Exec(url, code); err != nil {
 		return
 	}
 
@@ -97,29 +124,17 @@ func createUrl(url string) (code string, err error) {
 }
 
 func getUrl(code string) (url string, err error) {
-	err = db.QueryRow(
-		"SELECT url FROM urls WHERE code = $1 LIMIT 1",
-		code,
-	).Scan(&url)
-
+	err = dbqGetUrl.QueryRow(code).Scan(&url)
 	return
 }
 
 func hitRedirect(code string) (err error) {
-	_, err = db.Exec(
-		"UPDATE urls SET open_count = open_count + 1 WHERE code = $1",
-		code,
-	)
-
+	_, err = dbqHitRedirect.Exec(code)
 	return
 }
 
 func getOpenCount(code string) (count int64, err error) {
-	err = db.QueryRow(
-		"SELECT open_count FROM urls WHERE code = $1 LIMIT 1",
-		code,
-	).Scan(&count)
-
+	err = dbqGetOpenCount.QueryRow(code).Scan(&count)
 	return
 }
 
