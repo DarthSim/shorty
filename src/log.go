@@ -23,7 +23,7 @@ func initLogger() {
 
 	writer := io.MultiWriter(os.Stdout, logFile)
 
-	logger = log.New(writer, "Logbook: ", log.Ldate|log.Ltime)
+	logger = log.New(writer, "Shorty: ", log.Ldate|log.Ltime)
 }
 
 func closeLogger() {
