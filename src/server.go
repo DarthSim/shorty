@@ -1,19 +1,46 @@
 package main
 
 import (
+	"net"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rcrowley/goagain"
 )
 
 // Server tools ====================================================================================
 
-func startServer() {
-	bindAddress := config.Server.Address + ":" + config.Server.Port
+func initServer() {
+	listener, err := goagain.Listener()
 
-	logger.Printf("Starting server on %s\n", bindAddress)
+	if err != nil {
+		bindAddress := config.Server.Address + ":" + config.Server.Port
 
-	err := http.ListenAndServe(bindAddress, setupRouter())
+		logger.Printf("Starting server on %s\n", bindAddress)
+
+		listener, err = net.Listen("tcp", bindAddress)
+		if err != nil {
+			logger.Fatalf("Can't start server: %v", err)
+		}
+
+		go startServer(listener)
+	} else {
+		logger.Printf("Resume server on %s\n", listener.Addr())
+
+		go startServer(listener)
+
+		if err := goagain.Kill(); nil != err {
+			logger.Fatalf("Can't resume server: %v", err)
+		}
+	}
+
+	if _, err := goagain.Wait(listener); nil != err {
+		logger.Fatalln(err)
+	}
+}
+
+func startServer(l net.Listener) {
+	err := http.Serve(l, setupRouter())
 	if err != nil {
 		logger.Fatalf("Can't start server: %v", err)
 	}

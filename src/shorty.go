@@ -9,5 +9,5 @@ func main() {
 	initDB(true)
 	defer closeDB()
 
-	startServer()
+	initServer()
 }
