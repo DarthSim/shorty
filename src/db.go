@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -24,7 +23,7 @@ func initDBSchema() {
 		DROP TABLE IF EXISTS urls;
 
 		CREATE SEQUENCE urls_id_seq;
-		CREATE SEQUENCE urls_code_seq START 0 MINVALUE 0;
+		CREATE SEQUENCE urls_code_seq START 2704 MINVALUE 2704;
 
 		CREATE TABLE IF NOT EXISTS urls (
 			id int4 PRIMARY KEY NOT NULL DEFAULT nextval('urls_id_seq'),
@@ -78,8 +77,6 @@ func closeDB() {
 
 // DB queries ==================================================================
 
-const codeBase = 13330
-
 var (
 	dbqCodeSeq      *sql.Stmt
 	dbqCreateUrl    *sql.Stmt
@@ -114,7 +111,7 @@ func createUrl(url string) (code string, err error) {
 		return
 	}
 
-	code = strconv.FormatInt(codeBase+codeSeq, 36)
+	code = buildCode(codeSeq)
 
 	if _, err = dbqCreateUrl.Exec(url, code); err != nil {
 		return
