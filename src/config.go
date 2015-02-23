@@ -27,6 +27,9 @@ type Config struct {
 	Log struct {
 		Path string
 	}
+	Perfomance struct {
+		UrlCacheSize int
+	}
 }
 
 var config Config
@@ -47,8 +50,7 @@ func prepareConfig() {
 
 	flag.Parse()
 
-	err := gcfg.ReadFileInto(&config, absPathToFile(*configfile))
-	if err != nil {
+	if err := gcfg.ReadFileInto(&config, absPathToFile(*configfile)); err != nil {
 		fmt.Printf("Error opening config file: %v", err)
 		halt()
 	}

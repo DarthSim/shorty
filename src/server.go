@@ -40,8 +40,7 @@ func initServer() {
 }
 
 func startServer(l net.Listener) {
-	err := http.Serve(l, setupRouter())
-	if err != nil {
+	if err := http.Serve(l, setupRouter()); err != nil {
 		logger.Fatalf("Can't start server: %v", err)
 	}
 }
