@@ -46,16 +46,17 @@ func halt() {
 }
 
 func confirm(msg string) bool {
+	reader := bufio.NewReader(os.Stdin)
+
 	for {
 		fmt.Printf("%s [y/n]: ", msg)
 
-		reader := bufio.NewReader(os.Stdin)
 		answer, _ := reader.ReadString('\n')
 
-		switch {
-		case answer == "y\n":
+		switch answer {
+		case "y\n":
 			return true
-		case answer == "n\n":
+		case "n\n":
 			return false
 		}
 	}

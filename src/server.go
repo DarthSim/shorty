@@ -29,16 +29,9 @@ func setupRouter() (router *mux.Router) {
 	return
 }
 
-func requestVars(req *http.Request) map[string]string {
-	return mux.Vars(req)
-}
-
 func serverError(rw http.ResponseWriter, err error, status int) {
 	logger.Printf("Server error: %v", err)
-
-	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	rw.WriteHeader(status)
-	rw.Write([]byte("Internal server error"))
+	serverResponse(rw, "Internal server error", status)
 }
 
 func serverResponse(rw http.ResponseWriter, response string, status int) {

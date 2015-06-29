@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/golang/groupcache/lru"
+	"github.com/gorilla/mux"
 )
 
 var urlCache *lru.Cache
@@ -65,7 +66,7 @@ func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 func redirectHandler(rw http.ResponseWriter, req *http.Request) {
-	code := requestVars(req)["code"]
+	code := mux.Vars(req)["code"]
 
 	url, err := getUrlCached(code)
 	if checkServerError(rw, err) {
@@ -81,7 +82,7 @@ func redirectHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 func expandHandler(rw http.ResponseWriter, req *http.Request) {
-	code := requestVars(req)["code"]
+	code := mux.Vars(req)["code"]
 
 	url, err := getUrlCached(code)
 	if checkServerError(rw, err) {
@@ -92,7 +93,7 @@ func expandHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 func statisticsHandler(rw http.ResponseWriter, req *http.Request) {
-	code := requestVars(req)["code"]
+	code := mux.Vars(req)["code"]
 
 	count, err := getOpenCount(code)
 	if checkServerError(rw, err) {
