@@ -19,23 +19,8 @@ type ActionsTestSuite struct {
 }
 
 func (suite *ActionsTestSuite) SetupSuite() {
-	config = Config{}
-
-	config.Url.Domain = "shorty.test"
-
-	config.Database.Host = "localhost"
-	config.Database.Database = "shorty_test"
-	config.Database.User = os.Getenv("DBUSER")
-	config.Database.Password = os.Getenv("DBPASS")
-
-	config.Database.MaxOpenConnections = 5
-	config.Database.MaxIdleConnections = 5
-
-	config.Database.InitSchema = true
-
-	config.Log.Path = "test.log"
-
-	initLogger()
+	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
+	os.Setenv("RESET_DB", "1")
 
 	initDB(false)
 
@@ -45,9 +30,6 @@ func (suite *ActionsTestSuite) SetupSuite() {
 func (suite *ActionsTestSuite) TearDownSuite() {
 	db.Exec("DROP TABLE urls;")
 	closeDB()
-
-	closeLogger()
-	os.Remove(absPathToFile(config.Log.Path))
 }
 
 func (suite *ActionsTestSuite) SetupTest() {
@@ -64,9 +46,9 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 
 	if method == "POST" {
 		reqBody := strings.NewReader(body[0])
-		req, err = http.NewRequest(method, "http://shorty.test"+path, reqBody)
+		req, err = http.NewRequest(method, "http://shorty.com"+path, reqBody)
 	} else {
-		req, err = http.NewRequest(method, "http://shorty.test"+path, nil)
+		req, err = http.NewRequest(method, "http://shorty.com"+path, nil)
 	}
 
 	if err != nil {
@@ -101,11 +83,11 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 
 	suite.Equal("http://google.com/", url)
 	suite.NotEmpty(code)
-	suite.Equal(0, openCount)
+	suite.Equal(0, int(openCount))
 
 	suite.Equal(200, suite.Response.Code)
 	suite.Equal(
-		fmt.Sprintf("http://%s/%s", config.Url.Domain, code),
+		fmt.Sprintf("http://shorty.com/%s", code),
 		string(suite.Response.Body.Bytes()),
 	)
 }

@@ -1,20 +1,22 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/peterhellberg/env"
 )
 
 // Server tools ====================================================================================
 
 func startServer() {
-	bindAddress := config.Server.Address + ":" + config.Server.Port
+	bindAddress := env.String("ADDRESS", ":8080")
 
-	logger.Printf("Starting server on %s\n", bindAddress)
+	log.Printf("Starting server on %s\n", bindAddress)
 
 	if err := http.ListenAndServe(bindAddress, setupRouter()); err != nil {
-		logger.Fatalf("Can't start server: %v", err)
+		log.Fatalf("Can't start server: %v", err)
 	}
 }
 
@@ -29,8 +31,8 @@ func setupRouter() (router *mux.Router) {
 	return
 }
 
-func serverError(rw http.ResponseWriter, err error, status int) {
-	logger.Printf("Server error: %v", err)
+func serverError(rw http.ResponseWriter, err interface{}, status int) {
+	log.Printf("Server error: %v", err)
 	serverResponse(rw, "Internal server error", status)
 }
 

@@ -11,7 +11,7 @@ make
 cp shorty.conf.sample shorty.conf
 
 # First launch
-bin/shorty --init-db-schema
+RESET_DB=1 bin/shorty
 
 # Futher launches
 bin/shorty
@@ -19,10 +19,16 @@ bin/shorty
 
 #### Configuration
 
-You can specify the path to the config file using `--config` key:
+You can specify DB connection string by setting DB_CONN variable:
 
 ```bash
-bin/shorty --config /etc/shorty/shorty.conf
+DB_CONN="dbname=my_db sslmode=disable" bin/shorty
+```
+
+You can specify server address by setting ADDRESS variable:
+
+```bash
+ADDRESS="192.168.1.1:4321" bin/shorty
 ```
 
 ## API
@@ -42,7 +48,7 @@ GET /statistics/:code
 ````
 
 ## How to run tests
-1. First of all you need a PostgreSQL DB named `shorty_test`.
+1. First of all you need a public PostgreSQL DB named `shorty_test`.
 
 2. Next install testing packages with
 ```bash
@@ -51,5 +57,5 @@ gom -test install
 
 3. And finally run the following
 ```bash
-DBUSER=your_db_user DBPASS=your_db_user_password gom test src/*
+gom test src/*
 ```

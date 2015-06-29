@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"github.com/peterhellberg/env"
 )
 
 // DB tools ====================================================================
@@ -12,7 +13,7 @@ import (
 var db *sql.DB
 
 func confirmDbReset() {
-	msg := fmt.Sprintf("Do you really want to reset DB '%s'?", config.Database.Database)
+	msg := fmt.Sprintf("Do you really want to reset DB?")
 	if !confirm(msg) {
 		halt()
 	}
@@ -37,29 +38,22 @@ func initDBSchema() {
 		ALTER SEQUENCE urls_id_seq OWNED BY urls.id;
 		ALTER SEQUENCE urls_code_seq OWNED BY urls.code;`
 
-	if _, err := db.Exec(schema); err != nil {
-		checkErr(err, "Can't init DB schema")
-	}
+	_, err := db.Exec(schema)
+	checkErr(err)
 }
 
 func initDB(resetConfirmation bool) {
 	var err error
 
-	connectionString := fmt.Sprintf(
-		"host='%s' dbname='%s' user='%s' password='%s' sslmode=disable",
-		config.Database.Host,
-		config.Database.Database,
-		config.Database.User,
-		config.Database.Password,
-	)
+	connectionString := env.String("DB_CONN", "dbname=shorty_dev sslmode=disable")
 
 	db, err = sql.Open("postgres", connectionString)
-	checkErr(err, "Can't connect to DB")
+	checkErr(err)
 
-	db.SetMaxOpenConns(config.Database.MaxOpenConnections)
-	db.SetMaxIdleConns(config.Database.MaxIdleConnections)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
 
-	if config.Database.InitSchema {
+	if env.Bool("RESET_DB", false) {
 		if resetConfirmation {
 			confirmDbReset()
 		}
@@ -87,19 +81,19 @@ var (
 
 func prepareDbQueries() (err error) {
 	dbqCodeSeq, err = db.Prepare("SELECT nextval('urls_code_seq')")
-	checkErr(err, "Can't prepare DB")
+	checkErr(err)
 
 	dbqCreateUrl, err = db.Prepare("INSERT INTO urls (url, code) VALUES ($1, $2)")
-	checkErr(err, "Can't prepare DB")
+	checkErr(err)
 
 	dbqGetUrl, err = db.Prepare("SELECT url FROM urls WHERE code = $1 LIMIT 1")
-	checkErr(err, "Can't prepare DB")
+	checkErr(err)
 
 	dbqHitRedirect, err = db.Prepare("UPDATE urls SET open_count = open_count + 1 WHERE code = $1")
-	checkErr(err, "Can't prepare DB")
+	checkErr(err)
 
 	dbqGetOpenCount, err = db.Prepare("SELECT open_count FROM urls WHERE code = $1 LIMIT 1")
-	checkErr(err, "Can't prepare DB")
+	checkErr(err)
 
 	return
 }
@@ -112,10 +106,7 @@ func createUrl(url string) (code string, err error) {
 	}
 
 	code = buildCode(codeSeq)
-
-	if _, err = dbqCreateUrl.Exec(url, code); err != nil {
-		return
-	}
+	_, err = dbqCreateUrl.Exec(url, code)
 
 	return
 }
