@@ -16,6 +16,15 @@ type ActionsTestSuite struct {
 	Response *http.Response
 }
 
+func (suite *ActionsTestSuite) waitForServerStart() {
+	client := http.Client{}
+	for {
+		if _, err := client.Get("http://localhost:8088"); err == nil {
+			break
+		}
+	}
+}
+
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
 	os.Setenv("HOSTNAME", "the-custom-domain.shorty.com")
@@ -24,6 +33,8 @@ func (suite *ActionsTestSuite) SetupSuite() {
 
 	initDB(false)
 	go startServer()
+
+	suite.waitForServerStart()
 }
 
 func (suite *ActionsTestSuite) TearDownSuite() {
