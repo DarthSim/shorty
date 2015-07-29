@@ -30,6 +30,12 @@ You can specify server address by setting ADDRESS variable:
 ADDRESS="192.168.1.1:4321" bin/shorty
 ```
 
+And the hostname that will be used as a base for short links:
+
+```bash
+HOSTNAME="shorty.com" bin/shorty
+```
+
 ## API
 
 ````
