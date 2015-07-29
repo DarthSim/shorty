@@ -53,14 +53,14 @@ GET /statistics/:code
 ````
 
 ## How to run tests
-1. First of all you need a public PostgreSQL DB named `shorty_test`.
+First of all you need a public PostgreSQL DB named `shorty_test`.
 
-2. Next install testing packages with
+Next install testing packages with
 ```bash
 gom -test install
 ```
 
-3. And finally run the following
+And finally run the following
 ```bash
 gom test src/*
 ```
