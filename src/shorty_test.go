@@ -27,7 +27,6 @@ func (suite *ActionsTestSuite) waitForServerStart() {
 
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
-	os.Setenv("HOSTNAME", "the-custom-domain.shorty.com")
 	os.Setenv("RESET_DB", "1")
 	os.Setenv("ADDRESS", "localhost:8088")
 
@@ -100,8 +99,24 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 
 	suite.Equal(200, suite.Response.StatusCode)
 	suite.Equal(
-		fmt.Sprintf("http://the-custom-domain.shorty.com/%s", code),
+		fmt.Sprintf("http://localhost/%s", code),
 		suite.ResponseBody(),
+	)
+}
+
+func (suite *ActionsTestSuite) TestCreateUrlCustomHostname() {
+	os.Setenv("HOSTNAME", "shorty.ru")
+	setupApp()
+
+	suite.Nil(suite.SendRequest(
+		"POST",
+		"/shorten",
+		"url=http%3A%2F%2Fgoogle.com.ru%2F",
+	))
+
+	suite.Equal(200, suite.Response.StatusCode)
+	suite.Regexp(
+		"shorty.ru", suite.ResponseBody(),
 	)
 }
 
