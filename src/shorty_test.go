@@ -20,7 +20,7 @@ func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
 	os.Setenv("HOSTNAME", "the-custom-domain.shorty.com")
 	os.Setenv("RESET_DB", "1")
-	os.Setenv("ADDRESS", "localhost:12345")
+	os.Setenv("ADDRESS", "localhost:8088")
 
 	initDB(false)
 	go startServer()
@@ -43,9 +43,9 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 
 	if method == "POST" {
 		reqBody := strings.NewReader(body[0])
-		req, err = http.NewRequest(method, "http://localhost:12345"+path, reqBody)
+		req, err = http.NewRequest(method, "http://localhost:8088"+path, reqBody)
 	} else {
-		req, err = http.NewRequest(method, "http://localhost:12345"+path, nil)
+		req, err = http.NewRequest(method, "http://localhost:8088"+path, nil)
 	}
 
 	if err != nil {
