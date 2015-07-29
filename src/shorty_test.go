@@ -18,6 +18,7 @@ type ActionsTestSuite struct {
 
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
+	os.Setenv("HOSTNAME", "the-custom-domain.shorty.com")
 	os.Setenv("RESET_DB", "1")
 	os.Setenv("ADDRESS", "localhost:12345")
 
@@ -88,7 +89,7 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 
 	suite.Equal(200, suite.Response.StatusCode)
 	suite.Equal(
-		fmt.Sprintf("http://shorty.com/%s", code),
+		fmt.Sprintf("http://the-custom-domain.shorty.com/%s", code),
 		suite.ResponseBody(),
 	)
 }

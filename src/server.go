@@ -10,14 +10,21 @@ import (
 
 // Server tools ====================================================================================
 
+var hostname string
+
 func startServer() {
 	bindAddress := env.String("ADDRESS", ":8080")
 
 	log.Printf("Starting server on %s\n", bindAddress)
 
-	if err := http.ListenAndServe(bindAddress, setupRouter()); err != nil {
+	if err := http.ListenAndServe(bindAddress, setupApp()); err != nil {
 		log.Fatalf("Can't start server: %v", err)
 	}
+}
+
+func setupApp() *mux.Router {
+	hostname = env.String("HOSTNAME", "localhost")
+	return setupRouter()
 }
 
 func setupRouter() (router *mux.Router) {
