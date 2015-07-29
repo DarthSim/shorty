@@ -2,29 +2,30 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/suite"
 )
 
 type ActionsTestSuite struct {
 	suite.Suite
-	Router   *mux.Router
-	Response *httptest.ResponseRecorder
+	Client   *http.Client
+	Response *http.Response
 }
 
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
 	os.Setenv("RESET_DB", "1")
+	os.Setenv("ADDRESS", "localhost:12345")
 
 	initDB(false)
+	go startServer()
 
-	suite.Router = setupRouter()
+	suite.Client = &http.Client{}
 }
 
 func (suite *ActionsTestSuite) TearDownSuite() {
@@ -40,15 +41,13 @@ func (suite *ActionsTestSuite) TearDownTest() {
 }
 
 func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) (err error) {
-	suite.Response = httptest.NewRecorder()
-
 	var req *http.Request
 
 	if method == "POST" {
 		reqBody := strings.NewReader(body[0])
-		req, err = http.NewRequest(method, "http://shorty.com"+path, reqBody)
+		req, err = http.NewRequest(method, "http://localhost:12345"+path, reqBody)
 	} else {
-		req, err = http.NewRequest(method, "http://shorty.com"+path, nil)
+		req, err = http.NewRequest(method, "http://localhost:12345"+path, nil)
 	}
 
 	if err != nil {
@@ -59,9 +58,14 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 
-	suite.Router.ServeHTTP(suite.Response, req)
+	suite.Response, err = http.DefaultTransport.RoundTrip(req)
 
 	return
+}
+
+func (suite *ActionsTestSuite) ResponseBody() string {
+	body, _ := ioutil.ReadAll(suite.Response.Body)
+	return string(body)
 }
 
 func (suite *ActionsTestSuite) TestCreateUrl() {
@@ -85,10 +89,10 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 	suite.NotEmpty(code)
 	suite.Equal(0, int(openCount))
 
-	suite.Equal(200, suite.Response.Code)
+	suite.Equal(200, suite.Response.StatusCode)
 	suite.Equal(
 		fmt.Sprintf("http://shorty.com/%s", code),
-		string(suite.Response.Body.Bytes()),
+		suite.ResponseBody(),
 	)
 }
 
@@ -129,10 +133,10 @@ func (suite *ActionsTestSuite) TestExpandUrl() {
 		"/expand/abcd",
 	))
 
-	suite.Equal(200, suite.Response.Code)
+	suite.Equal(200, suite.Response.StatusCode)
 	suite.Equal(
 		"http://google.com/",
-		string(suite.Response.Body.Bytes()),
+		suite.ResponseBody(),
 	)
 }
 
@@ -144,10 +148,10 @@ func (suite *ActionsTestSuite) TestRedirectToUrl() {
 		"/abcd",
 	))
 
-	suite.Equal(301, suite.Response.Code)
+	suite.Equal(301, suite.Response.StatusCode)
 	suite.Equal(
 		"http://google.com/",
-		string(suite.Response.Header().Get("Location")),
+		string(suite.Response.Header.Get("Location")),
 	)
 }
 
@@ -159,10 +163,10 @@ func (suite *ActionsTestSuite) TestStatistics() {
 		"/statistics/abcd",
 	))
 
-	suite.Equal(200, suite.Response.Code)
+	suite.Equal(200, suite.Response.StatusCode)
 	suite.Equal(
 		"1234",
-		string(suite.Response.Body.Bytes()),
+		suite.ResponseBody(),
 	)
 }
 
