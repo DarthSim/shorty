@@ -24,22 +24,25 @@ func setupRouter() (router *mux.Router) {
 	router = mux.NewRouter()
 
 	router.HandleFunc("/shorten", createUrlHandler).Methods("POST")
-	router.HandleFunc("/{code}", redirectHandler).Methods("GET")
-	router.HandleFunc("/expand/{code}", expandHandler).Methods("GET")
-	router.HandleFunc("/statistics/{code}", statisticsHandler).Methods("GET")
+	router.HandleFunc("/{code}", redirectHandler).Methods("GET", "HEAD")
+	router.HandleFunc("/expand/{code}", expandHandler).Methods("GET", "HEAD")
+	router.HandleFunc("/statistics/{code}", statisticsHandler).Methods("GET", "HEAD")
 
 	return
 }
 
-func serverError(rw http.ResponseWriter, err interface{}, status int) {
+func serverError(rw http.ResponseWriter, req *http.Request, err interface{}, status int) {
 	log.Printf("Server error: %v", err)
-	serverResponse(rw, "Internal server error", status)
+	serverResponse(rw, req, "Internal server error", status)
 }
 
-func serverResponse(rw http.ResponseWriter, response string, status int) {
+func serverResponse(rw http.ResponseWriter, req *http.Request, response string, status int) {
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	rw.WriteHeader(status)
-	rw.Write([]byte(response))
+
+	if req.Method != "HEAD" {
+		rw.Write([]byte(response))
+	}
 }
 
 // end of Server tools
