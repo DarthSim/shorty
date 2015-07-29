@@ -20,11 +20,12 @@ type ActionsTestSuite struct {
 
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
+	os.Setenv("HOSTNAME", "shorty.com")
 	os.Setenv("RESET_DB", "1")
 
 	initDB(false)
 
-	suite.Router = setupRouter()
+	suite.Router = setupApp()
 }
 
 func (suite *ActionsTestSuite) TearDownSuite() {
@@ -89,6 +90,22 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 	suite.Equal(
 		fmt.Sprintf("http://shorty.com/%s", code),
 		string(suite.Response.Body.Bytes()),
+	)
+}
+
+func (suite *ActionsTestSuite) TestCreateUrlCustomHostname() {
+	os.Setenv("HOSTNAME", "shorty.ru")
+	suite.Router = setupApp()
+
+	suite.Nil(suite.SendRequest(
+		"POST",
+		"/shorten",
+		"url=http%3A%2F%2Fgoogle.com.ru%2F",
+	))
+
+	suite.Equal(200, suite.Response.Code)
+	suite.Regexp(
+		"shorty.ru", string(suite.Response.Body.Bytes()),
 	)
 }
 

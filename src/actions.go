@@ -30,7 +30,7 @@ func createUrlHandler(rw http.ResponseWriter, req *http.Request) {
 	code, err := createUrl(req.Form.Get("url"))
 	checkErr(err)
 
-	shortUrl := fmt.Sprintf("http://shorty.com/%s", code)
+	shortUrl := fmt.Sprintf("http://%s/%s", hostname, code)
 	serverResponse(rw, req, shortUrl, 200)
 }
 

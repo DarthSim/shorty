@@ -8,7 +8,6 @@ You will need Go and [Gom](https://github.com/mattn/gom) to build the project an
 
 ```bash
 make
-cp shorty.conf.sample shorty.conf
 
 # First launch
 RESET_DB=1 bin/shorty
@@ -29,6 +28,12 @@ You can specify server address by setting ADDRESS variable:
 
 ```bash
 ADDRESS="192.168.1.1:4321" bin/shorty
+```
+
+And the hostname that will be used as a base for short links:
+
+```bash
+HOSTNAME="shorty.com" bin/shorty
 ```
 
 ## API
