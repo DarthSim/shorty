@@ -13,7 +13,6 @@ import (
 
 type ActionsTestSuite struct {
 	suite.Suite
-	Client   *http.Client
 	Response *http.Response
 }
 
@@ -24,8 +23,6 @@ func (suite *ActionsTestSuite) SetupSuite() {
 
 	initDB(false)
 	go startServer()
-
-	suite.Client = &http.Client{}
 }
 
 func (suite *ActionsTestSuite) TearDownSuite() {
