@@ -8,7 +8,6 @@ You will need Go and [Gom](https://github.com/mattn/gom) to build the project an
 
 ```bash
 make
-cp shorty.conf.sample shorty.conf
 
 # First launch
 RESET_DB=1 bin/shorty
