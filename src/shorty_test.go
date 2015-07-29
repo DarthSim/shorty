@@ -20,7 +20,6 @@ type ActionsTestSuite struct {
 
 func (suite *ActionsTestSuite) SetupSuite() {
 	os.Setenv("DB_CONN", "dbname=shorty_test sslmode=disable")
-	os.Setenv("HOSTNAME", "shorty.com")
 	os.Setenv("RESET_DB", "1")
 
 	initDB(false)
@@ -47,9 +46,9 @@ func (suite *ActionsTestSuite) SendRequest(method, path string, body ...string) 
 
 	if method == "POST" {
 		reqBody := strings.NewReader(body[0])
-		req, err = http.NewRequest(method, "http://shorty.com"+path, reqBody)
+		req, err = http.NewRequest(method, "http://localhost"+path, reqBody)
 	} else {
-		req, err = http.NewRequest(method, "http://shorty.com"+path, nil)
+		req, err = http.NewRequest(method, "http://localhost"+path, nil)
 	}
 
 	if err != nil {
@@ -88,7 +87,7 @@ func (suite *ActionsTestSuite) TestCreateUrl() {
 
 	suite.Equal(200, suite.Response.Code)
 	suite.Equal(
-		fmt.Sprintf("http://shorty.com/%s", code),
+		fmt.Sprintf("http://localhost/%s", code),
 		string(suite.Response.Body.Bytes()),
 	)
 }
